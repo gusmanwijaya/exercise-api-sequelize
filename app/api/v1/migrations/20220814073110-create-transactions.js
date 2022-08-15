@@ -8,6 +8,11 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
+      order_id: {
+        allowNull: false,
+        unique: true,
+        type: Sequelize.STRING,
+      },
       user_id: {
         type: Sequelize.INTEGER,
         allowNull: false,
@@ -36,10 +41,16 @@ module.exports = {
       },
       status: {
         type: Sequelize.ENUM,
-        values: ["pending", "cancel", "process", "success"],
-        defaultValue: "pending",
+        values: ["process", "pending", "cancel", "deny", "settlement"],
+        defaultValue: "process",
       },
       payment_url: {
+        type: Sequelize.TEXT,
+      },
+      token: {
+        type: Sequelize.TEXT,
+      },
+      notification_midtrans: {
         type: Sequelize.TEXT,
       },
       createdAt: {

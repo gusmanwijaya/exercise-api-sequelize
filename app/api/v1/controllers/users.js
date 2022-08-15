@@ -2,9 +2,12 @@ const { Users } = require("../models");
 const CustomError = require("../../../errors");
 const createPayloadJwt = require("../../../utils/createPayloadJwt");
 const signJwt = require("../../../utils/signJwt");
+const { rootPath } = require("../../../configs/setting");
 
 const { StatusCodes } = require("http-status-codes");
 const bcrypt = require("bcryptjs");
+const { Op } = require("sequelize");
+const fs = require("fs");
 
 const signUp = async (req, res, next) => {
   try {
@@ -126,7 +129,96 @@ const signIn = async (req, res, next) => {
   }
 };
 
+const detail = async (req, res, next) => {
+  try {
+    const data = await Users.findOne({
+      where: {
+        id: req.user.id,
+      },
+      attributes: {
+        exclude: ["password"],
+      },
+    });
+
+    res.status(StatusCodes.OK).json({
+      statusCode: StatusCodes.OK,
+      message: "Data user berhasil didapatkan",
+      data,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const updateProfile = async (req, res, next) => {
+  try {
+    const { name, email, address, houseNumber, phoneNumber, city } = req.body;
+
+    const checkEmail = await Users.findOne({
+      where: {
+        id: {
+          [Op.ne]: req.user.id,
+        },
+        email,
+      },
+      attributes: ["id", "email"],
+    });
+
+    if (checkEmail)
+      throw new CustomError.BadRequest(`Email: ${email} sudah terdaftar`);
+
+    let data = await Users.findOne({
+      where: {
+        id: req.user.id,
+      },
+      attributes: {
+        exclude: ["password"],
+      },
+    });
+
+    if (!data)
+      throw new CustomError.NotFound(
+        `Users dengan id: ${req.user.id} tidak ditemukan`
+      );
+
+    if (!req.file) {
+      data.name = name;
+      data.email = email;
+      data.address = address;
+      data.houseNumber = houseNumber;
+      data.phoneNumber = phoneNumber;
+      data.city = city;
+    } else {
+      const currentImage = `${rootPath}/public/uploads/users/${data.picturePath}`;
+
+      if (fs.existsSync(currentImage)) {
+        fs.unlinkSync(currentImage);
+      }
+
+      data.name = name;
+      data.email = email;
+      data.address = address;
+      data.houseNumber = houseNumber;
+      data.phoneNumber = phoneNumber;
+      data.city = city;
+      data.picturePath = req.file.filename;
+    }
+
+    await data.save();
+
+    res.status(StatusCodes.OK).json({
+      statusCode: StatusCodes.OK,
+      message: "Profile berhasil diubah",
+      data,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   signUp,
   signIn,
+  updateProfile,
+  detail,
 };

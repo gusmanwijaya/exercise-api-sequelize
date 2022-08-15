@@ -10,6 +10,7 @@ const cors = require("cors");
 // START: Import Routes
 const usersRouter = require("./app/api/v1/routes/users");
 const foodsRouter = require("./app/api/v1/routes/foods");
+const transactionsRouter = require("./app/api/v1/routes/transactions");
 // END: Import Routes
 
 // START: Import middlewares
@@ -34,6 +35,7 @@ const API_VERSION = "api/v1";
 // START: Membuat route
 app.use(`/${API_VERSION}/users`, usersRouter);
 app.use(`/${API_VERSION}/foods`, foodsRouter);
+app.use(`/${API_VERSION}/transactions`, transactionsRouter);
 // END: Membuat route
 
 // START: Menggunakan middlewares

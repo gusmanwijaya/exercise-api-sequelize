@@ -116,58 +116,41 @@ const update = async (req, res, next) => {
     const { id: foodId } = req.params;
     const { name, description, ingredients, price, rate, types } = req.body;
 
-    const check = await Foods.findOne({
+    let data = await Foods.findOne({
       where: {
         id: foodId,
       },
     });
 
-    if (!check)
+    if (!data)
       throw new CustomError.NotFound(
         `Food dengan id: ${foodId} tidak ditemukan`
       );
 
-    let data;
     if (!req.file) {
-      data = await Foods.update(
-        {
-          name,
-          description,
-          ingredients,
-          price,
-          rate,
-          types,
-        },
-        {
-          where: {
-            id: foodId,
-          },
-        }
-      );
+      data.name = name;
+      data.description = description;
+      data.ingredients = ingredients;
+      data.price = price;
+      data.rate = rate;
+      data.types = types;
     } else {
-      const currentImage = `${rootPath}/public/uploads/foods/${check.picturePath}`;
+      const currentImage = `${rootPath}/public/uploads/foods/${data.picturePath}`;
 
       if (fs.existsSync(currentImage)) {
         fs.unlinkSync(currentImage);
       }
 
-      data = await Foods.update(
-        {
-          name,
-          description,
-          ingredients,
-          price,
-          rate,
-          types,
-          picturePath: req.file.filename,
-        },
-        {
-          where: {
-            id: foodId,
-          },
-        }
-      );
+      data.name = name;
+      data.description = description;
+      data.ingredients = ingredients;
+      data.price = price;
+      data.rate = rate;
+      data.types = types;
+      data.picturePath = req.file.filename;
     }
+
+    await data.save();
 
     res.status(StatusCodes.OK).json({
       statusCode: StatusCodes.OK,
@@ -183,28 +166,24 @@ const destroy = async (req, res, next) => {
   try {
     const { id: foodId } = req.params;
 
-    const check = await Foods.findOne({
+    const data = await Foods.findOne({
       where: {
         id: foodId,
       },
     });
 
-    if (!check)
+    if (!data)
       throw new CustomError.NotFound(
         `Food dengan id: ${foodId} tidak ditemukan`
       );
 
-    const currentImage = `${rootPath}/public/uploads/foods/${check.picturePath}`;
+    const currentImage = `${rootPath}/public/uploads/foods/${data.picturePath}`;
 
     if (fs.existsSync(currentImage)) {
       fs.unlinkSync(currentImage);
     }
 
-    const data = await Foods.destroy({
-      where: {
-        id: foodId,
-      },
-    });
+    await data.destroy();
 
     res.status(StatusCodes.OK).json({
       statusCode: StatusCodes.OK,

@@ -1,5 +1,6 @@
 "use strict";
 const { Model } = require("sequelize");
+const moment = require("moment");
 module.exports = (sequelize, DataTypes) => {
   class Users extends Model {
     /**
@@ -9,6 +10,9 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
+      Users.hasMany(models.Transactions, {
+        foreignKey: "id",
+      });
     }
   }
   Users.init(
@@ -55,10 +59,20 @@ module.exports = (sequelize, DataTypes) => {
       createdAt: {
         allowNull: false,
         type: DataTypes.DATE,
+        get: function () {
+          return moment(this.getDataValue("createdAt")).format(
+            "DD-MM-YYYY hh:mm A"
+          );
+        },
       },
       updatedAt: {
         allowNull: false,
         type: DataTypes.DATE,
+        get: function () {
+          return moment(this.getDataValue("updatedAt")).format(
+            "DD-MM-YYYY hh:mm A"
+          );
+        },
       },
     },
     {
