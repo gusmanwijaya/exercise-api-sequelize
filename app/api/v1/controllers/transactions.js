@@ -4,8 +4,17 @@ const CustomError = require("../../../errors");
 const { StatusCodes } = require("http-status-codes");
 const midtransClient = require("midtrans-client");
 const randomstring = require("randomstring");
+const nodemailer = require("nodemailer");
+const fs = require("fs");
+const Mustache = require("mustache");
 
-const { IS_PRODUCTION, CLIENT_KEY_MIDTRANS, SERVER_KEY_MIDTRANS } = process.env;
+const {
+  IS_PRODUCTION,
+  CLIENT_KEY_MIDTRANS,
+  SERVER_KEY_MIDTRANS,
+  NODEMAILER_EMAIL,
+  NODEMAILER_PASS,
+} = process.env;
 
 // Create Core API instance
 let snap = new midtransClient.Snap({
@@ -196,6 +205,22 @@ const notification = async (req, res, next) => {
           where: {
             order_id: orderId,
           },
+          include: [
+            {
+              model: Foods,
+              as: "food",
+              attributes: {
+                exclude: ["createdAt", "updatedAt"],
+              },
+            },
+            {
+              model: Users,
+              as: "user",
+              attributes: {
+                exclude: ["password", "createdAt", "updatedAt"],
+              },
+            },
+          ],
         });
 
         // if (transactionStatus == "capture") {
@@ -228,15 +253,51 @@ const notification = async (req, res, next) => {
         transaction.notification_midtrans = JSON.stringify(statusResponse);
         await transaction.save();
 
+        const transporter = nodemailer.createTransport({
+          host: "smtp.gmail.com",
+          port: 587,
+          secure: false, // true for 465, false for other ports
+          auth: {
+            user: NODEMAILER_EMAIL,
+            pass: NODEMAILER_PASS,
+          },
+        });
+
+        let template = fs.readFileSync(
+          "app/views/email/report-transaction.html",
+          "utf8"
+        );
+        let data = {
+          order_id: orderId,
+          user: transaction.user.name,
+          food: transaction.food.name,
+          quantity: transaction.quantity,
+          total: transaction.total,
+          status: transaction.status,
+        };
+
+        let message = {
+          from: NODEMAILER_EMAIL,
+          to: transaction.user.email,
+          subject: "Report Transaction",
+          html: Mustache.render(template, data),
+        };
+
+        await transporter.sendMail(message);
+
         res.status(StatusCodes.CREATED).json({
           statusCode: StatusCodes.CREATED,
           message: "Midtrans berhasil mengirimkan notification",
           data: transaction,
         });
       })
-      .catch((error) => next(error));
+      .catch((error) => {
+        next(error);
+        console.log(error);
+      });
   } catch (error) {
     next(error);
+    console.log(error);
   }
 };
 
