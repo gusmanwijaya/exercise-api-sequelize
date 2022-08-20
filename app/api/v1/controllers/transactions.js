@@ -105,19 +105,47 @@ const create = async (req, res, next) => {
   }
 };
 
+const destroy = async (req, res, next) => {
+  try {
+    const { id: transactionId } = req.params;
+
+    const data = await Transactions.findOne({
+      where: {
+        id: transactionId,
+        user_id: req.user.id,
+      },
+    });
+
+    if (!data)
+      throw new CustomError.NotFound(
+        `Transaction dengan id: ${transactionId} tidak ditemukan`
+      );
+
+    await data.destroy();
+
+    res.status(StatusCodes.OK).json({
+      statusCode: StatusCodes.OK,
+      message: "Transaksi berhasil dihapus",
+      data,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 const get = async (req, res, next) => {
   try {
-    const { food_id } = req.query;
+    const { status } = req.query;
     const user = req.user;
 
     let condition = {
       user_id: user.id,
     };
 
-    if (food_id) {
+    if (status) {
       condition = {
         ...condition,
-        food_id,
+        status,
       };
     }
 
@@ -340,6 +368,7 @@ const error = async (req, res, next) => {
 
 module.exports = {
   create,
+  destroy,
   get,
   detail,
   notification,

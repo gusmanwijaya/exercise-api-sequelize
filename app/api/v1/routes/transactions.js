@@ -9,6 +9,7 @@ const {
   finish,
   unfinish,
   error,
+  destroy,
 } = require("../controllers/transactions");
 
 const { authenticationUsers } = require("../../../middlewares/auth");
@@ -21,6 +22,7 @@ router.get("/error", error);
 router.use(authenticationUsers);
 
 router.post("/create", create);
+router.delete("/destroy/:id", destroy);
 router.get("/get", get);
 router.get("/detail/:id", detail);
 

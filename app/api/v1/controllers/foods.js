@@ -47,29 +47,15 @@ const create = async (req, res, next) => {
 
 const get = async (req, res, next) => {
   try {
-    const { keyword, page = 1, limit = 10 } = req.query;
+    const { page = 1, limit = 10 } = req.query;
 
     const parsePage = parseInt(page);
     const parseLimit = parseInt(limit);
 
-    let data;
-
-    if (keyword) {
-      data = await Foods.findAll({
-        where: {
-          name: {
-            [Op.substring]: keyword,
-          },
-        },
-        offset: parseLimit * (parsePage - 1),
-        limit: parseLimit,
-      });
-    } else {
-      data = await Foods.findAll({
-        offset: parseLimit * (parsePage - 1),
-        limit: parseLimit,
-      });
-    }
+    const data = await Foods.findAll({
+      offset: parseLimit * (parsePage - 1),
+      limit: parseLimit,
+    });
 
     const count = await Foods.count();
 
@@ -79,6 +65,26 @@ const get = async (req, res, next) => {
       current_page: parsePage,
       total_page: Math.ceil(count / limit),
       total_data: count,
+      data,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getByTypes = async (req, res, next) => {
+  try {
+    const { types } = req.query;
+
+    const data = await Foods.findAll({
+      where: {
+        types,
+      },
+    });
+
+    res.status(StatusCodes.OK).json({
+      statusCode: StatusCodes.OK,
+      message: "Berhasil mendapatkan data foods berdasarkan types",
       data,
     });
   } catch (error) {
@@ -201,4 +207,5 @@ module.exports = {
   detail,
   update,
   destroy,
+  getByTypes,
 };

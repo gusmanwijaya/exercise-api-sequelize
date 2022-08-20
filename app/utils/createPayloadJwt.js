@@ -8,6 +8,7 @@ const createPayloadJwt = (user) => {
     houseNumber: user?.houseNumber,
     phoneNumber: user?.phoneNumber,
     city: user?.city,
+    picturePath: user?.picturePath,
   };
 };
 

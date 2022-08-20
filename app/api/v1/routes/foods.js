@@ -7,6 +7,7 @@ const {
   detail,
   get,
   update,
+  getByTypes,
 } = require("../controllers/foods");
 
 const {
@@ -17,6 +18,7 @@ const uploadMiddleware = require("../../../middlewares/multer");
 
 router.use(authenticationUsers);
 router.get("/get", get);
+router.get("/get-by-types", getByTypes);
 router.get("/detail/:id", detail);
 
 router.use(authorizeRoles("admin"));
