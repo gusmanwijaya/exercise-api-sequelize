@@ -9,12 +9,17 @@ const {
 } = require("../controllers/users");
 
 const uploadMiddleware = require("../../../middlewares/multer");
-const { authenticationUsers } = require("../../../middlewares/auth");
+const {
+  authenticationUsers,
+  authorizeRoles,
+} = require("../../../middlewares/auth");
 
 router.post("/sign-up", uploadMiddleware.single("picturePath"), signUp);
 router.post("/sign-in", signIn);
 
 router.use(authenticationUsers);
+router.use(authorizeRoles("admin", "client"));
+
 router.put(
   "/update-profile",
   uploadMiddleware.single("picturePath"),

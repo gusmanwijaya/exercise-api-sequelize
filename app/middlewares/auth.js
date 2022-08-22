@@ -1,4 +1,5 @@
 const CustomError = require("../errors");
+const jwt = require("jsonwebtoken");
 const verifyJwt = require("../utils/verifyJwt");
 
 const authenticationUsers = async (req, res, next) => {
@@ -14,6 +15,12 @@ const authenticationUsers = async (req, res, next) => {
     if (!token) {
       throw new CustomError.Forbidden("Silahkan sign in terlebih dahulu");
     }
+
+    const decodeJwt = jwt.decode(token);
+    const dateNow = new Date().getTime() / 1000;
+
+    if (decodeJwt?.exp < dateNow)
+      throw new CustomError.Unauthorized("Access token anda telah kadaluarsa");
 
     const payload = verifyJwt(token);
 

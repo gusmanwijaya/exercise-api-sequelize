@@ -1,8 +1,9 @@
 "use strict";
 const { Model } = require("sequelize");
 const moment = require("moment");
+
 module.exports = (sequelize, DataTypes) => {
-  class Transactions extends Model {
+  class RefreshTokens extends Model {
     /**
      * Helper method for defining associations.
      * This method is not a part of Sequelize lifecycle.
@@ -10,18 +11,13 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       // define association here
-      Transactions.belongsTo(models.Foods, {
-        foreignKey: "food_id",
-        as: "food",
-      });
-
-      Transactions.belongsTo(models.Users, {
+      RefreshTokens.belongsTo(models.Users, {
         foreignKey: "user_id",
         as: "user",
       });
     }
   }
-  Transactions.init(
+  RefreshTokens.init(
     {
       id: {
         allowNull: false,
@@ -29,37 +25,12 @@ module.exports = (sequelize, DataTypes) => {
         primaryKey: true,
         type: DataTypes.INTEGER,
       },
-      order_id: {
-        allowNull: false,
-        unique: true,
-        type: DataTypes.STRING,
-      },
       user_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
-      food_id: {
-        type: DataTypes.INTEGER,
+      refresh_token: {
         allowNull: false,
-      },
-      quantity: {
-        type: DataTypes.INTEGER,
-      },
-      total: {
-        type: DataTypes.INTEGER,
-      },
-      status: {
-        type: DataTypes.ENUM,
-        values: ["process", "pending", "cancel", "deny", "settlement"],
-        defaultValue: "process",
-      },
-      payment_url: {
-        type: DataTypes.TEXT,
-      },
-      token: {
-        type: DataTypes.TEXT,
-      },
-      notification_midtrans: {
         type: DataTypes.TEXT,
       },
       createdAt: {
@@ -83,9 +54,9 @@ module.exports = (sequelize, DataTypes) => {
     },
     {
       sequelize,
-      modelName: "Transactions",
-      tableName: "transactions",
+      modelName: "RefreshTokens",
+      tableName: "refresh_tokens",
     }
   );
-  return Transactions;
+  return RefreshTokens;
 };

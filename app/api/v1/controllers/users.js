@@ -1,8 +1,10 @@
-const { Users } = require("../models");
+const { Users, RefreshTokens } = require("../models");
 const CustomError = require("../../../errors");
 const createPayloadJwt = require("../../../utils/createPayloadJwt");
 const signJwt = require("../../../utils/signJwt");
 const { rootPath } = require("../../../configs/setting");
+const createPayloadRefreshJwt = require("../../../utils/createPayloadRefreshJwt");
+const signRefreshJwt = require("../../../utils/signRefreshJwt");
 
 const { StatusCodes } = require("http-status-codes");
 const bcrypt = require("bcryptjs");
@@ -115,13 +117,33 @@ const signIn = async (req, res, next) => {
     if (!isPasswordMatch) throw new CustomError.Unauthorized("Password salah");
 
     const payload = createPayloadJwt(user);
-    const token = signJwt(payload);
+    const accessToken = signJwt(payload);
+
+    const payloadRefreshToken = createPayloadRefreshJwt(user);
+    const refreshToken = signRefreshJwt(payloadRefreshToken);
+
+    let tempRefreshToken = await RefreshTokens.findOne({
+      where: {
+        user_id: user.id,
+      },
+    });
+    if (!tempRefreshToken) {
+      tempRefreshToken = new RefreshTokens({
+        user_id: user.id,
+        refresh_token: refreshToken,
+      });
+    } else {
+      tempRefreshToken.refresh_token = refreshToken;
+    }
+
+    await tempRefreshToken.save();
 
     res.status(StatusCodes.OK).json({
       statusCode: StatusCodes.OK,
       message: "Sign in berhasil",
       data: {
-        token,
+        accessToken,
+        refreshToken,
       },
     });
   } catch (error) {

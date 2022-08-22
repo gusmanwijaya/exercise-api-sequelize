@@ -13,6 +13,10 @@ module.exports = (sequelize, DataTypes) => {
       Users.hasMany(models.Transactions, {
         foreignKey: "id",
       });
+
+      Users.hasOne(models.RefreshTokens, {
+        foreignKey: "id",
+      });
     }
   }
   Users.init(
@@ -78,6 +82,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: "Users",
+      tableName: "users",
     }
   );
   return Users;

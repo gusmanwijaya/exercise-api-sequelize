@@ -2,7 +2,10 @@ const jwt = require("jsonwebtoken");
 const setting = require("../configs/setting");
 
 const signJwt = (payload) => {
-  const token = jwt.sign(payload, setting.jwtKey);
+  const token = jwt.sign(payload, setting.jwtKey, {
+    expiresIn: setting.jwtExpiresInAccessToken,
+  });
+
   return token;
 };
 
