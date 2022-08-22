@@ -1,9 +1,9 @@
 const express = require("express");
 const router = express.Router();
 
-const { create, get } = require("../controllers/refreshtokens");
+const { newAccessToken, get } = require("../controllers/refreshtokens");
 
-router.post("/create", create);
+router.post("/new-access-token", newAccessToken);
 router.get("/get", get);
 
 module.exports = router;

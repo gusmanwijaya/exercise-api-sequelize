@@ -9,7 +9,7 @@ const createPayloadJwt = require("../../../utils/createPayloadJwt");
 const signJwt = require("../../../utils/signJwt");
 
 module.exports = {
-  create: async (req, res, next) => {
+  newAccessToken: async (req, res, next) => {
     try {
       const { refresh_token } = req.body;
 
