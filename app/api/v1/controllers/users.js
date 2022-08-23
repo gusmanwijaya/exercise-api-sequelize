@@ -27,6 +27,26 @@ const signUp = async (req, res, next) => {
     if (!name) throw new CustomError.BadRequest("Nama tidak boleh kosong");
     if (!email) throw new CustomError.BadRequest("Email tidak boleh kosong");
 
+    const pattern = new RegExp("[$+;=#|'`<>^*]");
+
+    if (pattern.test(name))
+      throw new CustomError.BadRequest("Nama tidak valid");
+
+    if (pattern.test(roles))
+      throw new CustomError.BadRequest("Roles tidak valid");
+
+    if (pattern.test(address))
+      throw new CustomError.BadRequest("Alamat tidak valid");
+
+    if (pattern.test(houseNumber))
+      throw new CustomError.BadRequest("No rumah tidak valid");
+
+    if (pattern.test(phoneNumber))
+      throw new CustomError.BadRequest("No handphone tidak valid");
+
+    if (pattern.test(city))
+      throw new CustomError.BadRequest("City tidak valid");
+
     const regexEmail =
       /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
     const checkFormatEmail = String(email).toLowerCase().match(regexEmail);
@@ -175,6 +195,29 @@ const detail = async (req, res, next) => {
 const updateProfile = async (req, res, next) => {
   try {
     const { name, email, address, houseNumber, phoneNumber, city } = req.body;
+
+    const pattern = new RegExp("[$+;=#|'`<>^*]");
+
+    if (pattern.test(name))
+      throw new CustomError.BadRequest("Nama tidak valid");
+
+    if (pattern.test(address))
+      throw new CustomError.BadRequest("Alamat tidak valid");
+
+    if (pattern.test(houseNumber))
+      throw new CustomError.BadRequest("No rumah tidak valid");
+
+    if (pattern.test(phoneNumber))
+      throw new CustomError.BadRequest("No handphone tidak valid");
+
+    if (pattern.test(city))
+      throw new CustomError.BadRequest("City tidak valid");
+
+    const regexEmail =
+      /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    const checkFormatEmail = String(email).toLowerCase().match(regexEmail);
+    if (!checkFormatEmail)
+      throw new CustomError.BadRequest("Email yang Anda masukkan tidak valid");
 
     const checkEmail = await Users.findOne({
       where: {

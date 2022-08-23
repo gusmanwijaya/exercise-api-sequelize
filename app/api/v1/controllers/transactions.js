@@ -27,16 +27,27 @@ const create = async (req, res, next) => {
   try {
     const { food_id, quantity } = req.body;
 
+    const pattern = new RegExp("[$+;=#|'`<>^*]");
+
+    if (pattern.test(food_id))
+      throw new CustomError.BadRequest("Food id tidak valid");
+
+    if (pattern.test(quantity))
+      throw new CustomError.BadRequest("Quantity tidak valid");
+
+    const foodIdParse = parseInt(food_id);
+    const quantityParse = parseInt(quantity);
+
     const food = await Foods.findOne({
       where: {
-        id: food_id,
+        id: foodIdParse,
       },
     });
 
     if (!food)
       throw new CustomError.BadRequest("Food yang Anda pesan tidak tersedia");
 
-    const gross_amount = food.price * quantity;
+    const gross_amount = food.price * quantityParse;
     const order_id = `TRX-${randomstring.generate({
       length: 5,
       charset: "numeric",
@@ -46,8 +57,8 @@ const create = async (req, res, next) => {
     let transaction = new Transactions({
       order_id,
       user_id: user.id,
-      food_id,
-      quantity,
+      food_id: foodIdParse,
+      quantity: quantityParse,
       total: gross_amount,
       payment_url: "",
       token: "",
@@ -64,7 +75,7 @@ const create = async (req, res, next) => {
       item_details: {
         id: food.id,
         price: food.price,
-        quantity,
+        quantity: quantityParse,
         name: food.name,
         category: food.types,
       },
@@ -109,16 +120,23 @@ const destroy = async (req, res, next) => {
   try {
     const { id: transactionId } = req.params;
 
+    const pattern = new RegExp("[$+;=#|'`<>^*]");
+
+    if (pattern.test(transactionId))
+      throw new CustomError.BadRequest("Transaction id tidak valid");
+
+    const transactionIdParse = parseInt(transactionId);
+
     const data = await Transactions.findOne({
       where: {
-        id: transactionId,
+        id: transactionIdParse,
         user_id: req.user.id,
       },
     });
 
     if (!data)
       throw new CustomError.NotFound(
-        `Transaction dengan id: ${transactionId} tidak ditemukan`
+        `Transaction dengan id: ${transactionIdParse} tidak ditemukan`
       );
 
     await data.destroy();
@@ -141,6 +159,11 @@ const get = async (req, res, next) => {
     let condition = {
       user_id: user.id,
     };
+
+    const pattern = new RegExp("[$+;=#|'`<>^*]");
+
+    if (pattern.test(status))
+      throw new CustomError.BadRequest("Status tidak valid");
 
     if (status) {
       condition = {
@@ -183,11 +206,18 @@ const detail = async (req, res, next) => {
   try {
     const { id: transactionId } = req.params;
 
+    const pattern = new RegExp("[$+;=#|'`<>^*]");
+
+    if (pattern.test(transactionId))
+      throw new CustomError.BadRequest("Transaction id tidak valid");
+
+    const transactionIdParse = parseInt(transactionId);
+
     const user = req.user;
 
     const data = await Transactions.findOne({
       where: {
-        id: transactionId,
+        id: transactionIdParse,
         user_id: user.id,
       },
       include: [

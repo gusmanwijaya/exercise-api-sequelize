@@ -13,12 +13,24 @@ module.exports = {
     try {
       const { refresh_token } = req.body;
 
+      const pattern = new RegExp("[$+;=#|'`<>^*%!]");
+      if (pattern.test(refresh_token))
+        throw new CustomError.BadRequest("Request tidak valid");
+
       const decodeRefreshToken = jwt.decode(refresh_token);
       const dateNow = new Date().getTime() / 1000;
       if (decodeRefreshToken?.exp < dateNow)
         throw new CustomError.Unauthorized(
           "Refresh token sudah kadaluarsa, silahkan sign in"
         );
+
+      const checkRefreshToken = await RefreshTokens.findOne({
+        where: {
+          refresh_token,
+        },
+      });
+      if (!checkRefreshToken)
+        throw new CustomError.NotFound("Refresh token tidak dapat ditemukan");
 
       const isRefreshTokenVerified = verifyRefreshJwt(refresh_token);
       if (!isRefreshTokenVerified)
@@ -71,11 +83,17 @@ module.exports = {
   },
   get: async (req, res, next) => {
     try {
-      const { refresh_token } = req.query;
+      const { user_id } = req.query;
+
+      const pattern = new RegExp("[$+;=#|'`<>^*%!]");
+      if (pattern.test(user_id))
+        throw new CustomError.BadRequest("Query tidak valid");
+
+      const userIdParse = parseInt(user_id);
 
       const data = await RefreshTokens.findOne({
         where: {
-          refresh_token,
+          user_id: userIdParse,
         },
         include: [
           {
@@ -106,6 +124,45 @@ module.exports = {
       res.status(StatusCodes.OK).json({
         statusCode: StatusCodes.OK,
         message: "Berhasil mendapatkan data refresh token dari database",
+        data,
+      });
+    } catch (error) {
+      next(error);
+    }
+  },
+  destroy: async (req, res, next) => {
+    try {
+      const { user_id } = req.params;
+
+      const pattern = new RegExp("[$+;=#|'`<>^*%!]");
+      if (pattern.test(user_id))
+        throw new CustomError.BadRequest("Params tidak valid");
+
+      const userIdParse = parseInt(user_id);
+
+      const data = await RefreshTokens.findOne({
+        where: {
+          user_id: userIdParse,
+        },
+        include: [
+          {
+            model: Users,
+            as: "user",
+            attributes: {
+              exclude: ["password", "createdAt", "updatedAt"],
+            },
+          },
+        ],
+      });
+
+      if (!data)
+        throw new CustomError.NotFound("Refresh token tidak dapat ditemukan");
+
+      await data.destroy();
+
+      res.status(StatusCodes.OK).json({
+        statusCode: StatusCodes.OK,
+        message: "Berhasil menghapus refresh token dari database",
         data,
       });
     } catch (error) {

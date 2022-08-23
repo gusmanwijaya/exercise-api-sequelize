@@ -1,7 +1,6 @@
 const { Foods } = require("../models");
 const CustomError = require("../../../errors");
 const { StatusCodes } = require("http-status-codes");
-const { Op } = require("sequelize");
 const { rootPath } = require("../../../configs/setting");
 const fs = require("fs");
 
@@ -11,6 +10,26 @@ const create = async (req, res, next) => {
 
     if (!name) throw new CustomError.BadRequest("Nama tidak boleh kosong");
     if (!price) throw new CustomError.BadRequest("Harga tidak boleh kosong");
+
+    const pattern = new RegExp("[$+;=#|'`<>^*]");
+
+    if (pattern.test(name))
+      throw new CustomError.BadRequest("Nama tidak valid");
+
+    if (pattern.test(description))
+      throw new CustomError.BadRequest("Deskripsi tidak valid");
+
+    if (pattern.test(ingredients))
+      throw new CustomError.BadRequest("Ingredients tidak valid");
+
+    if (pattern.test(price))
+      throw new CustomError.BadRequest("Harga tidak valid");
+
+    if (pattern.test(rate))
+      throw new CustomError.BadRequest("Rate tidak valid");
+
+    if (pattern.test(types))
+      throw new CustomError.BadRequest("Tipe tidak valid");
 
     let data;
 
@@ -76,6 +95,11 @@ const getByTypes = async (req, res, next) => {
   try {
     const { types } = req.query;
 
+    const pattern = new RegExp("[$+;=#|'`<>^*]");
+
+    if (pattern.test(types))
+      throw new CustomError.BadRequest("Types tidak valid");
+
     const data = await Foods.findAll({
       where: {
         types,
@@ -96,15 +120,22 @@ const detail = async (req, res, next) => {
   try {
     const { id: foodId } = req.params;
 
+    const pattern = new RegExp("[$+;=#|'`<>^*]");
+
+    if (pattern.test(foodId))
+      throw new CustomError.BadRequest("Food id tidak valid");
+
+    const foodIdParse = parseInt(foodId);
+
     const data = await Foods.findOne({
       where: {
-        id: foodId,
+        id: foodIdParse,
       },
     });
 
     if (!data)
       throw new CustomError.NotFound(
-        `Food dengan id: ${foodId} tidak ditemukan`
+        `Food dengan id: ${foodIdParse} tidak ditemukan`
       );
 
     res.status(StatusCodes.OK).json({
@@ -122,15 +153,40 @@ const update = async (req, res, next) => {
     const { id: foodId } = req.params;
     const { name, description, ingredients, price, rate, types } = req.body;
 
+    const pattern = new RegExp("[$+;=#|'`<>^*]");
+
+    if (pattern.test(foodId))
+      throw new CustomError.BadRequest("Food id tidak valid");
+
+    if (pattern.test(name))
+      throw new CustomError.BadRequest("Nama tidak valid");
+
+    if (pattern.test(description))
+      throw new CustomError.BadRequest("Deskripsi tidak valid");
+
+    if (pattern.test(ingredients))
+      throw new CustomError.BadRequest("Ingredients tidak valid");
+
+    if (pattern.test(price))
+      throw new CustomError.BadRequest("Harga tidak valid");
+
+    if (pattern.test(rate))
+      throw new CustomError.BadRequest("Rate tidak valid");
+
+    if (pattern.test(types))
+      throw new CustomError.BadRequest("Tipe tidak valid");
+
+    const foodIdParse = parseInt(foodId);
+
     let data = await Foods.findOne({
       where: {
-        id: foodId,
+        id: foodIdParse,
       },
     });
 
     if (!data)
       throw new CustomError.NotFound(
-        `Food dengan id: ${foodId} tidak ditemukan`
+        `Food dengan id: ${foodIdParse} tidak ditemukan`
       );
 
     if (!req.file) {
@@ -172,15 +228,22 @@ const destroy = async (req, res, next) => {
   try {
     const { id: foodId } = req.params;
 
+    const pattern = new RegExp("[$+;=#|'`<>^*]");
+
+    if (pattern.test(foodId))
+      throw new CustomError.BadRequest("Food id tidak valid");
+
+    const foodIdParse = parseInt(foodId);
+
     const data = await Foods.findOne({
       where: {
-        id: foodId,
+        id: foodIdParse,
       },
     });
 
     if (!data)
       throw new CustomError.NotFound(
-        `Food dengan id: ${foodId} tidak ditemukan`
+        `Food dengan id: ${foodIdParse} tidak ditemukan`
       );
 
     const currentImage = `${rootPath}/public/uploads/foods/${data.picturePath}`;
