@@ -10,6 +10,7 @@ const {
   unfinish,
   error,
   destroy,
+  cancel,
 } = require("../controllers/transactions");
 
 const {
@@ -29,5 +30,6 @@ router.post("/create", create);
 router.delete("/destroy/:id", destroy);
 router.get("/get", get);
 router.get("/detail/:id", detail);
+router.post("/cancel", cancel);
 
 module.exports = router;

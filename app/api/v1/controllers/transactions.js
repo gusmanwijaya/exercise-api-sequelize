@@ -248,6 +248,33 @@ const detail = async (req, res, next) => {
   }
 };
 
+const cancel = async (req, res, next) => {
+  try {
+    const { order_id } = req.body;
+
+    let data = await Transactions.findOne({
+      where: {
+        order_id,
+        status: "pending",
+        user_id: req.user.id,
+      },
+    });
+
+    if (!data)
+      throw new CustomError.NotFound("Transaksi tidak dapat ditemukan");
+
+    const response = await snap.transaction.cancel(order_id);
+
+    res.status(StatusCodes.OK).json({
+      statusCode: StatusCodes.OK,
+      message: `Transaksi dengan Order ID : ${order_id} berhasil dibatalkan`,
+      data: response,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 const notification = async (req, res, next) => {
   try {
     const requestFromMidtrans = req.body;
@@ -299,7 +326,8 @@ const notification = async (req, res, next) => {
           transaction.status = "deny";
         } else if (
           transactionStatus == "cancel" ||
-          transactionStatus == "expire"
+          transactionStatus == "expire" ||
+          transactionStatus == "failure"
         ) {
           // TODO set transaction status on your databaase to 'failure'
           transaction.status = "cancel";
@@ -401,6 +429,7 @@ module.exports = {
   destroy,
   get,
   detail,
+  cancel,
   notification,
   finish,
   unfinish,
