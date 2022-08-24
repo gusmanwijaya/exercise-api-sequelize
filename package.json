@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "nodemon ./bin/www"
+    "start": "env-cmd -f./.env.dev nodemon ./bin/www",
+    "production": "env-cmd -f./.env.prod nodemon ./bin/www"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
@@ -11,6 +12,7 @@
     "cors": "^2.8.5",
     "debug": "~2.6.9",
     "dotenv": "^16.0.1",
+    "env-cmd": "^10.1.0",
     "express": "~4.16.1",
     "http-status-codes": "^2.2.0",
     "jsonwebtoken": "^8.5.1",
