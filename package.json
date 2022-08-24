@@ -24,6 +24,8 @@
     "mysql2": "^2.3.3",
     "nodemailer": "^6.7.8",
     "nodemon": "^2.0.19",
+    "pg": "^8.8.0",
+    "pg-hstore": "^2.3.4",
     "randomstring": "^1.2.2",
     "sequelize": "^6.21.3",
     "sequelize-cli": "^6.4.1"
