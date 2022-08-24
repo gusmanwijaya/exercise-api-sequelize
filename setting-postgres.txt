@@ -1,0 +1,43 @@
+module.exports = {
+  development: {
+    username: DB_USERNAME,
+    password: DB_PASSWORD,
+    database: DB_DATABASE,
+    host: DB_HOST,
+    dialect: DB_DIALECT,
+    port: DB_PORT,
+    dialectOptions: {
+      ssl: false,
+    },
+  },
+  test: {
+    username: DB_USERNAME,
+    password: DB_PASSWORD,
+    database: DB_DATABASE,
+    host: DB_HOST,
+    dialect: DB_DIALECT,
+    port: DB_PORT,
+  },
+  production: {
+    username: DB_USERNAME,
+    password: DB_PASSWORD,
+    database: DB_DATABASE,
+    host: DB_HOST,
+    dialect: DB_DIALECT,
+    port: DB_PORT,
+    dialectOptions: {
+      ssl: {
+        rejectUnauthorized: false,
+      },
+    },
+  },
+};
+
+
+DB_USERNAME = mac
+DB_PASSWORD =
+DB_DATABASE = exercise-api-sequelize
+DB_HOST = localhost
+DB_DIALECT = postgres
+DB_PORT = 5432
+
