@@ -3,8 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "env-cmd -f./.env.dev nodemon ./bin/www",
-    "production": "env-cmd -f./.env.prod nodemon ./bin/www"
+    "start": "env-cmd -f./.env.prod nodemon ./bin/www",
+    "dev": "env-cmd -f./.env.dev nodemon ./bin/www"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
